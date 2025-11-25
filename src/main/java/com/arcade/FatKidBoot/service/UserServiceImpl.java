@@ -76,4 +76,10 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<User> findByUserName(String username) {
+        return userRepository.findByUsernameIgnoreCase(username);
+    }
+
 }

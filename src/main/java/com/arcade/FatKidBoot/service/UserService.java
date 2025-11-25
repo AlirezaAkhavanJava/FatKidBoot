@@ -2,7 +2,6 @@ package com.arcade.FatKidBoot.service;
 
 
 import com.arcade.FatKidBoot.entity.User;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +19,6 @@ public interface UserService {
     User partialUpdateUser(Long id, User patchUser);
 
     void deleteById(Long id);
+
+    Optional<User> findByUserName(String username);
 }
