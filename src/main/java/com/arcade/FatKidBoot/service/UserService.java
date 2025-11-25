@@ -13,5 +13,11 @@ public interface UserService {
 
     Optional<User> findById(Long id);
 
+    List<User> findAll();
 
+    User updateUser(Long id, User user);
+
+    User partialUpdateUser(Long id, User patchUser);
+
+    void deleteById(Long id);
 }
