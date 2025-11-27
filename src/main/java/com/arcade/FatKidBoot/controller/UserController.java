@@ -3,6 +3,7 @@ package com.arcade.FatKidBoot.controller;
 import com.arcade.FatKidBoot.entity.User;
 import com.arcade.FatKidBoot.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,7 @@ public class UserController {
 
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<User> saveNewUser(@RequestBody User user) {
         User addedUser = service.saveNewUser(user);
         URI location = URI.create("/register/" + addedUser.getId());
