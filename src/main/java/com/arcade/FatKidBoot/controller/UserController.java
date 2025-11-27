@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @RestController
@@ -63,5 +64,12 @@ public class UserController {
         return ResponseEntity.noContent().build(); // 204 No Content :)
     }
 
+    @PostMapping("/login")
+    public String login(@RequestBody User user) {
+        var client = service.findByUserName(user.getUsername()).orElseThrow(() -> new RuntimeException("Not Found"));
+        if (!Objects.isNull(client))
+            return "Success";
+        return "Failed";
+    }
 
 }

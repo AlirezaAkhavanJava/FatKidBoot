@@ -15,15 +15,21 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private ErrorMessage buildError(HttpStatus status, String message, WebRequest request) {
-        return ErrorMessage.builder()
-                .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .error(status.getReasonPhrase())
-                .message(message != null ? message : status.getReasonPhrase())
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
-    }
+private ErrorMessage buildError(HttpStatus status, String message, WebRequest request) {
+    return ErrorMessage.builder()
+            .timestamp(LocalDateTime.now())
+            .status(status.value())
+            .error(status.getReasonPhrase())
+            .message(message != null ? message : status.getReasonPhrase())
+            .path(request.getDescription(false).replace("uri=", ""))
+            .build();
+}
+
+// For EntityNotFound
+@ExceptionHandler(EntityNotFoundException.class)
+public ResponseEntity<String> handleNotFound(EntityNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+}
 
     // Handle JPA EntityNotFoundException (often thrown by getOne/reference)
     @ExceptionHandler(EntityNotFoundException.class)
