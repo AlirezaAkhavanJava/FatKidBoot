@@ -20,7 +20,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("users/register").permitAll() /*No Authentication for new ones*/
+                        request.requestMatchers("/users/register" , "/users/login").permitAll() /*No Authentication for new ones*/
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) /*No TOKEN for POST/PUT request*/
