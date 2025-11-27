@@ -15,10 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
     @Bean /*THE FILTER CHAIN*/
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(request -> request.anyRequest().authenticated())
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers("users/register").permitAll() /*No Authentication for new ones*/
+                        .anyRequest().authenticated()
+                )
                 .csrf(AbstractHttpConfigurer::disable) /*No TOKEN for POST/PUT request*/
                 .formLogin(Customizer.withDefaults())  /*Use form to Authorize*/
                 .httpBasic(Customizer.withDefaults()); /*Authorize*/
