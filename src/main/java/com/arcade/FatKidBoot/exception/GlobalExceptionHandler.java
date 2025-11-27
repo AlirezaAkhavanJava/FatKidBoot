@@ -1,7 +1,7 @@
 package com.arcade.FatKidBoot.exception;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.LocalDateTime;
 
-@Log4j2
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -19,46 +19,41 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ErrorMessage.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())
-                .error(status.getReasonPhrase()) // Better than status.name() – more human-readable
+                .error(status.getReasonPhrase())
                 .message(message != null ? message : status.getReasonPhrase())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
     }
 
+    // Handle JPA EntityNotFoundException (often thrown by getOne/reference)
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleEntityNotFound(EntityNotFoundException ex, WebRequest request) {
-        ErrorMessage error = buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
-        log.warn("Entity not found: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
     }
 
-    // custom UserNotFoundException
+    // Custom UserNotFoundException
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleUserNotFound(UserNotFoundException ex, WebRequest request) {
-        ErrorMessage error = buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
-        log.warn("User not found: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
     }
 
-    // validation errors, access denied, etc.
+    //Handle validation errors, access denied, etc.
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorMessage> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
-        ErrorMessage error = buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
-        log.warn("Bad request: {}", ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
+        return ResponseEntity.badRequest()
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     // Global fallback for unexpected exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleGlobalException(Exception ex, WebRequest request) {
-        log.error("Unexpected error occurred", ex);
-
-        ErrorMessage error = buildError(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred. Please try again later.",
-                request
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "An unexpected error occurred. Please try again later.",
+                        request)
+                );
     }
 
 }
