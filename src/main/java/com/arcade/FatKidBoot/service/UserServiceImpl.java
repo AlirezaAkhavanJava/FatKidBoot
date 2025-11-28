@@ -20,8 +20,10 @@ import static com.arcade.FatKidBoot.config.WebSecurityConfig.bCryptPasswordEncod
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     // =========================  /REGISTER ==========================
     @Transactional
@@ -114,11 +116,8 @@ public class UserServiceImpl implements UserService {
                 )
         );
 
-//        var client = userRepository
-//                .findByUsernameIgnoreCase(user.getUsername())
-//                .orElseThrow(() -> new RuntimeException("Not Found"));
         authenticate.isAuthenticated();
-        return "Success";
+        return jwtService.generateToken(user);
     }
 
 }

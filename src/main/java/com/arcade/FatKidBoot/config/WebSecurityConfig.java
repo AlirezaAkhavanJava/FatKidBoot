@@ -16,15 +16,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public WebSecurityConfig(UserDetailsService userDetailsService) {
+    public WebSecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean /*THE FILTER CHAIN*/
@@ -36,7 +39,8 @@ public class WebSecurityConfig {
                 )
                 .csrf(AbstractHttpConfigurer::disable) /*No TOKEN for POST/PUT request*/
                 .formLogin(Customizer.withDefaults())  /*Use form to Authorize*/
-                .httpBasic(Customizer.withDefaults()); /*Authorize*/
+                .httpBasic(Customizer.withDefaults()) /*Authorize*/
+                .addFilterBefore(jwtAuthenticationFilter , UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
