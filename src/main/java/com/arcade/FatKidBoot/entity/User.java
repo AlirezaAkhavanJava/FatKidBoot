@@ -11,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_table")
 public class User {
+    // BASIC COLUMNS FOR LOGIN AND REGISTER AND JPA
     @Id
     @SequenceGenerator(name = "seq_user", sequenceName = "user_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_user")
@@ -30,6 +33,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    // EMBEDDED TABLES
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "street", column = @Column(name = "home_street")),
@@ -46,6 +50,7 @@ public class User {
     })
     private Address workAddress;
 
+    //SECURITY
     private String role;
     private Boolean enabled = false;
 
@@ -64,4 +69,26 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+
+    // RELATIONS
+
+    /*ONE USER ONLY HAS ONE CARD*/
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "employment_card_id",
+            referencedColumnName = "employment_Id"
+    )
+    private EmploymentCard employmentCard;
+
+    /*ONE USER CAN GET MANY REWARDS*/
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinTable(
+            name = "user_rewards",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "reward_id")
+    )
+    private Set<Rewards> rewards = new HashSet<>();
+
 }

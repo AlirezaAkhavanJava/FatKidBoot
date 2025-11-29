@@ -1,25 +1,31 @@
+// src/main/java/com/arcade/FatKidBoot/config/AuditorAwareImpl.java   (or keep in audit package)
+
 package com.arcade.FatKidBoot.audit;
 
-import com.arcade.FatKidBoot.entity.User;
-import com.arcade.FatKidBoot.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Component
-@Transactional
-@RequiredArgsConstructor
-public class AuditorAwareImpl  implements AuditorAware<String> {
-
-    private final UserRepository userRepository;
-
-    //Optional<User> user = userRepository.findByUsernameIgnoreCase();
+public class AuditorAwareImpl implements AuditorAware<String> {
 
     @Override
+    @NonNull
     public Optional<String> getCurrentAuditor() {
-        return Optional.empty();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return Optional.of("SYSTEM");
+        }
+
+        // Works with both String username and  Custom UserDetails object
+        String username = authentication.getName();
+        return Optional.of(username);
     }
 }
