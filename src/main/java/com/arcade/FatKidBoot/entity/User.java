@@ -30,7 +30,7 @@ public class User {
     private Long id;
     @Column(unique = true, nullable = false)
     private String username;
-    @Column(nullable = false)
+    @Column(nullable = false , length = 60)
     private String password;
     @Column(nullable = false, unique = true)
     private String email;
@@ -95,4 +95,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Course> courses = new ArrayList<>();
+
+    public void saveUsersToken() {
+    }
+
+
 }

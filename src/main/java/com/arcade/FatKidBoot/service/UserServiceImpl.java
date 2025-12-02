@@ -1,9 +1,11 @@
 package com.arcade.FatKidBoot.service;
 
 import com.arcade.FatKidBoot.entity.User;
-import com.arcade.FatKidBoot.event.UserEvent;
+import com.arcade.FatKidBoot.entity.VerificationToken;
+import com.arcade.FatKidBoot.event.RegistrationEvent;
 import com.arcade.FatKidBoot.exception.UserNotFoundException;
 import com.arcade.FatKidBoot.repository.UserRepository;
+import com.arcade.FatKidBoot.repository.VerificationTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,19 +29,18 @@ import static com.arcade.FatKidBoot.config.WebSecurityConfig.bCryptPasswordEncod
 @Service
 public class UserServiceImpl implements UserService {
 
+    // ========================================================== Dependencies ---
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     // =========================  /REGISTER ==========================
     @Transactional
     @Override
     public User saveNewUser(User user) {
         user.setPassword(bCryptPasswordEncoder().encode(user.getPassword()));
-        UserEvent event = new UserEvent(user.getUsername(), user.getEmail());
-        applicationEventPublisher.publishEvent(event);
-        log.info("User save event: {}", event);
         return userRepository.save(user);
     }
 
@@ -138,6 +139,13 @@ public class UserServiceImpl implements UserService {
             return userRepository.findAll(pageable);
         }
         return userRepository.findByUsernameContainingIgnoreCase(username, pageable);
+    }
+
+    // ========================  TOKEN  ========================
+    @Override
+    public void saveUsersToken(String token, User user) {
+        VerificationToken verificationToken = new VerificationToken(token, user);
+        verificationTokenRepository.save(verificationToken);
     }
 
 }

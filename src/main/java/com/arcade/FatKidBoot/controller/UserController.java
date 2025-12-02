@@ -39,14 +39,6 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ======================== REGISTER ==========================
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> saveNewUser(@RequestBody User user) {
-        User addedUser = service.saveNewUser(user);
-        URI location = URI.create("/register/" + addedUser.getId());
-        return ResponseEntity.created(location).body(addedUser);
-    }
 
     // =========================  UPDATE BY ID  ==========================
     @PutMapping("/update/{id}")

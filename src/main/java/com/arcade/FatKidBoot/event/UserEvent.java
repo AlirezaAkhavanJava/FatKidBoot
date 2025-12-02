@@ -23,8 +23,4 @@ public class UserEvent {
         this.username = username;
         this.dateTime = LocalDateTime.now();
     }
-
-    public void srtWelcomeEmail(boolean welcomeEmail) {
-        this.welcomeEmail = welcomeEmail;
-    }
 }

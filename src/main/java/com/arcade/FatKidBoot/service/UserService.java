@@ -27,4 +27,6 @@ public interface UserService {
     String verify(User user);
 
     Page<User> searchUserByName(String username, Pageable pageable);
+
+    void saveUsersToken(String token, User user);
 }
