@@ -1,6 +1,8 @@
 package com.arcade.FatKidBoot.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -15,9 +18,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 public class Rewards {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reward_id;
+    private UUID reward_id;
     private String reward_name;
     private String reward_description;
 

@@ -1,10 +1,13 @@
 package com.arcade.FatKidBoot.service;
 
 import com.arcade.FatKidBoot.entity.User;
+import com.arcade.FatKidBoot.event.UserEvent;
 import com.arcade.FatKidBoot.exception.UserNotFoundException;
 import com.arcade.FatKidBoot.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +22,7 @@ import java.util.Optional;
 
 import static com.arcade.FatKidBoot.config.WebSecurityConfig.bCryptPasswordEncoder;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,12 +30,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     // =========================  /REGISTER ==========================
     @Transactional
     @Override
     public User saveNewUser(User user) {
         user.setPassword(bCryptPasswordEncoder().encode(user.getPassword()));
+        UserEvent event = new UserEvent(user.getUsername(), user.getEmail());
+        applicationEventPublisher.publishEvent(event);
+        log.info("User save event: {}", event);
         return userRepository.save(user);
     }
 
@@ -108,6 +116,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("USER YOU ARE SEARCHING FOR NOT FOUND")));
     }
 
+    // =========================  VERIFY THE USER  ==========================
     @Override
     public String verify(User user) {
 
@@ -122,11 +131,13 @@ public class UserServiceImpl implements UserService {
         return jwtService.generateToken(user);
     }
 
+    // =========================  SEARCH THE USER BY NAME  ==========================
     @Override
     public Page<User> searchUserByName(String username, Pageable pageable) {
         if (username == null || username.isBlank()) {
             return userRepository.findAll(pageable);
-        }return userRepository.findByUsernameContainingIgnoreCase(username , pageable);
+        }
+        return userRepository.findByUsernameContainingIgnoreCase(username, pageable);
     }
 
 }
